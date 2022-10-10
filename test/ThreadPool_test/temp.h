@@ -1,0 +1,16 @@
+//
+// Created by shecannotsee on 2022/10/10.
+//
+
+#ifndef SAFE_QUEUE_TEST_TEST_SHETHREADPOOL_TEST_THREADPOOL_TEST_TEMP_H_
+#define SAFE_QUEUE_TEST_TEST_SHETHREADPOOL_TEST_THREADPOOL_TEST_TEMP_H_
+
+namespace method1{
+
+void main() {
+
+}
+
+};//namespace method1
+
+#endif //SAFE_QUEUE_TEST_TEST_SHETHREADPOOL_TEST_THREADPOOL_TEST_TEMP_H_
