@@ -36,7 +36,7 @@ void task_thread() {
   std::packaged_task<int(int,int)> task(add);
   std::future<int> result = task.get_future();
 
-  std::thread t([](){});//link to thread(lib?), otherwise, an error will be reported during running
+  // std::thread t([](){});//link to thread(lib?), otherwise, an error will be reported during running
   std::thread task_td(std::move(task), 20, 20);
   task_td.join();
 
