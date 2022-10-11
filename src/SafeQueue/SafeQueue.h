@@ -23,10 +23,11 @@ class SafeQueue {
   SafeQueue(SafeQueue&&) = default;
   SafeQueue& operator=(SafeQueue&&) = default;
  public:
-  void push(T&& element) {
+  void push(T element) {
     std::unique_lock<std::mutex> lock(_mutex);
-    _queue.push(std::move(element));
+    _queue.push(element);
   };
+
   bool popSuccess(T& temp) {
     std::unique_lock<std::mutex> lock(_mutex);
     if (_queue.empty())
@@ -35,7 +36,8 @@ class SafeQueue {
     _queue.pop();
     return true;
   };
-  bool empty() const {
+
+  bool empty() {
     std::unique_lock<std::mutex> lock(_mutex);
     return _queue.empty();
   };

@@ -6,13 +6,16 @@
 #define VLPT_TEST_TEST_SHETHREADPOOL_TEST_STD_FUNCTION_SRC_TEMP_H_
 
 #include <stdio.h>
+#include <queue>
 #include <iostream>
 #include <functional>
+
 
 namespace method1 {
 void print_num(int i) {
   printf("%d\n", i);
 }
+
 template<typename T>
 void f(T a, T b) {
   std::cout<<a<<","<<b<<"\n";
@@ -80,5 +83,55 @@ void main() {
   f_class_function_bind_with_reference(11);
 }
 };//namespace method1
+
+namespace method2{
+
+void print_num(int a, int b) {
+  printf("%d, %d\n",a,b);
+}
+
+void main() {
+  std::function<void(int,int)> f1 = print_num;
+  f1(1,2);
+  std::queue<std::function<void()>> q;
+  { std::function<void()> z1 = std::bind(f1, 99, 99);
+    q.push(std::move(z1));}
+  std::function<void()> temp;
+  temp = std::move(q.front());
+  temp();
+};
+
+};//namespace method2
+
+namespace method3{
+std::queue<std::function<void()>> _method3_q;
+void add_num(int a,int b) {
+  printf("%d,%d\n",a,b);
+};
+
+template<typename F,typename... Args>
+void submit(F&& f,Args&&... args) {
+  std::function<decltype(f(args...))()> func =
+      std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+  std::function<void()> temp = [func](){func();};
+  _method3_q.push(std::move(temp));
+};
+
+void main() {
+  int a=10;
+  int b=20;
+  submit(add_num,a,b);
+  submit([](){
+    printf("lambda\n");
+  });
+
+  std::function<void()> temp;
+  while (!_method3_q.empty()) {
+    temp = _method3_q.front();
+    _method3_q.pop();
+    temp();
+  }
+}
+};//namespace method3
 
 #endif //VLPT_TEST_TEST_SHETHREADPOOL_TEST_STD_FUNCTION_SRC_TEMP_H_

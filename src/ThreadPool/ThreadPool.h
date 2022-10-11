@@ -26,16 +26,27 @@ class ThreadPool {
   SafeQueue<_void_ptr_f> _task;// task queue
   std::mutex _mutex;
   std::condition_variable _condition_variable;
+  std::vector<std::thread> _threads_array;
+  int _thread_num;
+  bool _loopOn;
  public:
-  ThreadPool() {
-
+  explicit ThreadPool(int thread_num)
+      : _thread_num(thread_num),
+        _loopOn(true) {
+    for(int i=0;i<thread_num; ++i) {
+      _threads_array.emplace_back(&ThreadPool::work, this);
+    }
+  };
+  ~ThreadPool() {
+    _loopOn= false;
+    for (auto& t:_threads_array)
+      t.join();
   };
  public:
-  void start() {
+  void work() {
     _void_ptr_f work_work;
-    bool loop;
     // TODO:Need to add stop time
-    while (loopOn) {
+    while (_loopOn) {
       std::unique_lock<std::mutex> lock(_mutex);
       if (_task.empty()) {
         _condition_variable.wait(lock);
@@ -48,24 +59,31 @@ class ThreadPool {
     }
   };
 
+//  // TODO:decltype(f(args...))->decltype(std::forward<Function>(f)(std::forward<Args>(args)...))
+//  template<typename F, typename... Args>
+//  auto submit_task(F f, Args... args) -> std::future<decltype(f(args...))> {
+//    std::function<decltype(f(args...))()> func =
+//        std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+//
+//    std::shared_ptr<std::packaged_task<decltype(f(args...)())>> task_ptr =
+//          std::make_shared<std::packaged_task<decltype(f(args...)())>>(func);
+//    _void_ptr_f element = [task_ptr]() ->_void_ptr_f {
+//      (*task_ptr)();
+//    };
+//    _task.push(element);
+//    _condition_variable.notify_one();
+//    return task_ptr.get_future();
+//  };//submit_task
+
   template<typename F, typename... Args>
-  auto submit_task(F&& f, Args&&... args) -> std::future<decltype(f(args...))> {
-    std::function<decltype(f(args...))()> func =
+  void she_submit(F&& f,Args&&... args) {
+    std::function<decltype(f(args...)())> func =
         std::bind(std::forward<F>(f), std::forward<Args>(args)...);
-
-    std::unique_ptr<std::packaged_task<decltype(f(args...)())>> task_ptr =
-        NoCpp14Standard::make_unique<std::packaged_task<decltype(f(args...)())>>(func);
-    //
-    _void_ptr_f element = [task_ptr](){
-      (*task_ptr)();
-    };
+    _void_ptr_f element = [func](){func();};
     _task.push(element);
-    // TODO:call sleep thread
-    // do something...
     _condition_variable.notify_one();
+  }
 
-    return task_ptr.get_future();
-  };//submit
 };
 
 };//namespace sheThreadPool
