@@ -21,9 +21,8 @@ std::unique_ptr<T> make_unique(Ts&&... params)
 namespace sheThreadPool {
 
 class ThreadPool {
-  typedef std::function<void()> _void_ptr_f;
  private:
-  SafeQueue<_void_ptr_f> _task;// task queue
+  SafeQueue<std::function<void()>> _task;// safe task queue
   std::mutex _mutex;
   std::condition_variable _condition_variable;
   std::vector<std::thread> _threads_array;
@@ -34,54 +33,35 @@ class ThreadPool {
       : _thread_num(thread_num),
         _loopOn(true) {
     for(int i=0;i<thread_num; ++i) {
-      _threads_array.emplace_back(&ThreadPool::work, this);
+      _threads_array.emplace_back([this](){
+        // add workers
+        std::function<void()> task;
+        while (this->_loopOn) {
+          std::unique_lock<std::mutex> lock(this->_mutex);
+          if (this->_task.popSuccess(task))
+            task();
+          else
+            this->_condition_variable.wait(lock);
+        }
+      });
     }
   };
   ~ThreadPool() {
-    _loopOn= false;
+    {
+      std::unique_lock<std::mutex> lock(_mutex);
+      _loopOn = false;
+    }
+    _condition_variable.notify_all();
     for (auto& t:_threads_array)
       t.join();
   };
+
  public:
-  void work() {
-    _void_ptr_f work_work;
-    // TODO:Need to add stop time
-    while (_loopOn) {
-      std::unique_lock<std::mutex> lock(_mutex);
-      if (_task.empty()) {
-        _condition_variable.wait(lock);
-      }
-      else {
-        // TODO:do something
-        if (_task.popSuccess(work_work))
-          work_work();
-      }
-    }
-  };
-
-//  // TODO:decltype(f(args...))->decltype(std::forward<Function>(f)(std::forward<Args>(args)...))
-//  template<typename F, typename... Args>
-//  auto submit_task(F f, Args... args) -> std::future<decltype(f(args...))> {
-//    std::function<decltype(f(args...))()> func =
-//        std::bind(std::forward<F>(f), std::forward<Args>(args)...);
-//
-//    std::shared_ptr<std::packaged_task<decltype(f(args...)())>> task_ptr =
-//          std::make_shared<std::packaged_task<decltype(f(args...)())>>(func);
-//    _void_ptr_f element = [task_ptr]() ->_void_ptr_f {
-//      (*task_ptr)();
-//    };
-//    _task.push(element);
-//    _condition_variable.notify_one();
-//    return task_ptr.get_future();
-//  };//submit_task
-
   template<typename F, typename... Args>
-  void she_submit(F&& f,Args&&... args) {
-    std::function<decltype(f(args...)())> func =
-        std::bind(std::forward<F>(f), std::forward<Args>(args)...);
-    _void_ptr_f element = [func](){func();};
-    _task.push(element);
-    _condition_variable.notify_one();
+  void submit(F&& f,Args&&... args) {
+    auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+    this->_task.push([task](){task();});
+    this->_condition_variable.notify_all();
   }
 
 };
