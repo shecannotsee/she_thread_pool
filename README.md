@@ -6,34 +6,42 @@
 
 ### 模式
 
-1.生产者/消费者模式
+1.生产者/消费者模式（该线程池为此种实现）
 
 2.领导者/追随者模式：线程有三种类型：领导者，追随者和工作者。任务来临时，领导者从追随者中选出继任，然后转变成工作者处理任务，任务结束重新变为追随者等待下一个领导者选出继任
 
 ### 一般实现
 
-1.线程池管理
+1.线程池管理：TODO
 
-2.工作线程
+2.工作线程：private:ThreadPool::work()
 
-3.任务接口
+3.任务接口：submit()，将传入函数进行两层封装，添加到SafeQueue< std::function<void()> >中 
 
-4.任务队列
+4.任务队列：SafeQueue< class >是对std::queue的线程安全封装
 
-### 核心实现
+### How to ues?
 
-
-
-
-
-
-
+example
 ```c++
-void method1() {
-  threadpool tp_example(10);//创建一个数量为10的线程池
-  
-  tp_example.submit_task(function1,data);  
-  
+#include "ThreadPool"
+
+void f1(int a) {
+  printf("f1...%d...\n",a);
+  sleep(1);
+  printf("f1___%d...\n",a);
+}
+
+void f2() {
+  printf("f2...\n");
+  sleep(1);
+  printf("f2___\n");
+}
+
+void main() {
+  sheThreadPool::ThreadPool p(5);
+  for (int i = 0; i < 8; ++i)
+    p.submit(f1, i);
 }
 ```
 
