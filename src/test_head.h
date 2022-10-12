@@ -22,7 +22,7 @@ namespace method1 {
 void f1(int a) {
   printf("f1...%d...\n",a);
   sleep(1);
-  printf("f1___\n");
+  printf("f1___%d...\n",a);
 }
 
 void f2() {
@@ -34,8 +34,11 @@ void f2() {
 void main() {
   sheThreadPool::ThreadPool p(5);
   int a=10;
-  p.submit(f1,10);
-  p.submit(f2);
+  for (int j=0;j<10;++j) {
+    for (int i = 0; i < 8; ++i)
+      p.submit(f1, i);
+  }
+  //while (!p.empty_task()) ;
 };
 
 };//namespace method1
