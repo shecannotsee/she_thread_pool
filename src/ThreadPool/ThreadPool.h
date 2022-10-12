@@ -71,6 +71,7 @@ class ThreadPool {
     this->_task.push([task](){task();});
     this->_condition_variable.notify_one();
     // TODO:Need to consider the number of extended threads
+    // Parameter design:free/max<40%-60% extend,free/max>80%,reduce
     // Reduce:reduce the number of threads when the utilization rate is less than 80%
     // Extend:1.Remaining memory.2.Cumulative task quantity
     printf("submit success.\n");
