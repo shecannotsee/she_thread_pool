@@ -20,6 +20,21 @@
 
 4.任务队列：SafeQueue< class >是对std::queue的线程安全封装
 
+### Building
+
+just include the head like this example in cmake
+
+```cmake
+# ...
+# set third-party path
+set(path "")
+# include
+include_directories(${path})
+# ...
+```
+
+
+
 ### How to ues?
 
 example
