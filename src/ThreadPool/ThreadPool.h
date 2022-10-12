@@ -70,6 +70,9 @@ class ThreadPool {
     auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
     this->_task.push([task](){task();});
     this->_condition_variable.notify_one();
+    // TODO:Need to consider the number of extended threads
+    // Reduce:reduce the number of threads when the utilization rate is less than 80%
+    // Extend:1.Remaining memory.2.Cumulative task quantity
     printf("submit success.\n");
   }
 
