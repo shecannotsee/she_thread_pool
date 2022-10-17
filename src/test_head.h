@@ -35,8 +35,8 @@ void main() {
   sheThreadPool::ThreadPool p(5);
   int a=10;
   for (int j=0;j<10;++j) {
-    for (int i = 0; i < 8; ++i)
-      p.submit(f1, i);
+    for (int i = j; i < j+8; ++i)
+      p.submit(f1, i+j);
   }
   //while (!p.empty_task()) ;
 };

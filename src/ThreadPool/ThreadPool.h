@@ -48,6 +48,7 @@ class ThreadPool {
     for (std::thread& t:_threads_array)
       t.join();
   };
+
  private:
   void worker() {
     std::function<void()> task;
@@ -64,12 +65,22 @@ class ThreadPool {
     }
   }
 
+  void weakUpThread() {
+    while (1) {
+      if (this->empty_task())
+        return;
+      else
+        this->_condition_variable.notify_one();
+      std::this_thread::yield();
+    }
+  };
+
  public:
   template<typename F, typename... Args>
   void submit(F&& f,Args&&... args) {
     auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
     this->_task.push([task](){task();});
-    this->_condition_variable.notify_one();
+    std::async(std::launch::async,&ThreadPool::weakUpThread,this);
     // TODO:Need to consider the number of extended threads
     // Parameter design:free/max<40%-60% extend,free/max>80%,reduce
     // Reduce:reduce the number of threads when the utilization rate is less than 80%
