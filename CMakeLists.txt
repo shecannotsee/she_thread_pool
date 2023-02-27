@@ -82,9 +82,13 @@ install(TARGETS
 # install include
 install(FILES
         ${CMAKE_SOURCE_DIR}/src/SafeQueue/SafeQueue.h # source head
+        DESTINATION # to
+        ${PROJECT_NAME}/include/SafeQueue # target dir
+        )
+install(FILES
         ${CMAKE_SOURCE_DIR}/src/ThreadPool/ThreadPool.h
         DESTINATION # to
-        ${PROJECT_NAME}/include # target dir
+        ${PROJECT_NAME}/include/ThreadPool # target dir
         )
 # install lib
 install(TARGETS
