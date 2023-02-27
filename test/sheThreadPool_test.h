@@ -17,7 +17,7 @@
 #include <vector>
 #include <unistd.h>
 
-namespace method1 {
+namespace sheThreadPool_test {
 
 void f1(int a) {
   printf("f1...%d...\n",a);
@@ -41,9 +41,9 @@ void main() {
   //while (!p.empty_task()) ;
 };
 
-};//namespace method1
+};//namespace sheThreadPool_test
 
-namespace method2 {
+namespace other_thread_pool_test {
 // Thread safe implementation of a Queue using a std::queue
 template <typename T>
 class SafeQueue {
@@ -154,7 +154,6 @@ class ThreadPool {
   }
 };
 
-
 void f1(int a) {printf("f1...%d...\n",a);};
 
 void main() {
@@ -163,7 +162,6 @@ void main() {
   p.submit(f1,10);
 }
 
-
-};//namespace method2
+};//namespace other_thread_pool_test
 
 #endif //SHE_THREAD_POOL_TEST_TEST_SHETHREADPOOL_SRC_TEST_HEAD_H_

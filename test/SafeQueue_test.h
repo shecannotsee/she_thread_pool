@@ -6,9 +6,9 @@
 #define PACKAGED_TASK_TEST_TEST_SHETHREADPOOL_TEST_SAFEQUEUE_TEST_TEMP_H_
 
 #include <iostream>
-#include "SafeQueue.h"
+#include <SafeQueue/SafeQueue.h>
 
-namespace method1{
+namespace SafeQueue_test{
 
 void main() {
   sheThreadPool::SafeQueue<int> sq;
@@ -28,6 +28,6 @@ void main() {
   std::cout<<"\n";
 }
 
-};//namespace method1
+};//namespace SafeQueue_test
 
 #endif //PACKAGED_TASK_TEST_TEST_SHETHREADPOOL_TEST_SAFEQUEUE_TEST_TEMP_H_

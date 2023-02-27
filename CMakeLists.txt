@@ -1,31 +1,96 @@
+########################################################################################################################
 cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "-g")# to deal clion debug invalid
 
-set(PROJECT_NAME "she_thread_pool_test")
-
-#
-get_filename_component(a_demo ${CMAKE_SOURCE_DIR} DIRECTORY)
-message(STATUS "a_demo's path:${a_demo}")#/Users/shecannotsee/Desktop/AllCode/testcode/a-demo
-get_filename_component(testcode ${a_demo} DIRECTORY)
-message(STATUS "testcode's path:${testcode}")# /Users/shecannotsee/Desktop/AllCode/testcode
-
-set(CMAKE_CXX_FLAGS "-g")# 断点无效处理方案
+set(PROJECT_NAME "she_thread_pool" VERSION 0.0.1)
+set(CMAKE_BUILD_TYPE "RELEASE") # Release or Debug or MinSizeRel
 project(${PROJECT_NAME})
 
-# include
-include_directories(
-)
-# lib
-link_directories(
-)
+########################################################################################################################
+set(unit_test "ON")
+set(library "OFF")
 
-# aux_source_directory(. SOURCE)
+# set options print
+if (unit_test STREQUAL "ON")
+    set(unit_test_name "${PROJECT_NAME}_test")
+else()
+    message(STATUS "CMakeLists.txt error")
+endif ()
+
+# lib set
+if (library STREQUAL "ON")
+    set(library_static_name "${PROJECT_NAME}_static")
+    set(library_dynamic_name "${PROJECT_NAME}_dynamic")
+else()
+    message(STATUS "CMakeLists.txt error")
+endif ()
+#message(STATUS "${unit_test_name}")
+#message(STATUS "${library_static_name}")
+#message(STATUS "${library_dynamic_name}")
+
+########################################################################################################################
+# set path
+
+########################################################################################################################
+# include
+include_directories(${CMAKE_SOURCE_DIR}/src)
+# lib
+link_directories()
+
+########################################################################################################################
 file(GLOB_RECURSE SRC "${CMAKE_SOURCE_DIR}/src/*")
-add_executable(${PROJECT_NAME}
-        ${SRC}
+# test target
+if (unit_test STREQUAL "ON")
+    file(GLOB_RECURSE TEST_SRC "${CMAKE_SOURCE_DIR}/test/*")
+    add_executable(${unit_test_name} ${TEST_SRC} ${SRC})
+    target_link_libraries(${unit_test_name} "-pthread")
+else()
+    message(STATUS "CMakeLists.txt error")
+endif ()
+
+# lib target
+if (library STREQUAL "ON")
+    add_library(${library_static_name} STATIC ${SRC})
+    # Rename the generated static library
+    set_target_properties(${library_static_name} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+    add_library(${library_dynamic_name} SHARED ${SRC})
+    # Rename the generated dynamic library
+    set_target_properties(${library_dynamic_name} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+else()
+    message(STATUS "CMakeLists.txt error")
+endif ()
+
+########################################################################################################################
+# local debug
+set(CMAKE_INSTALL_PREFIX "./")
+# Release Code
+#set(CMAKE_INSTALL_PREFIX "/")
+
+message(STATUS "The default installation path is ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "Please use \"make install DESTDIR=./PATH\" to set install path")
+
+install(TARGETS
+        ${unit_test_name}
+        DESTINATION
+        ${PROJECT_NAME}/bin
         )
 
-# 链接库
-target_link_libraries(${PROJECT_NAME} pthread)
+# To use make install to build library
+# install include
+install(FILES
+        ${CMAKE_SOURCE_DIR}/src/SafeQueue/SafeQueue.h # source head
+        ${CMAKE_SOURCE_DIR}/src/ThreadPool/ThreadPool.h
+        DESTINATION # to
+        ${PROJECT_NAME}/include # target dir
+        )
+# install lib
+install(TARGETS
+        ${library_static_name} ${library_dynamic_name}
+        DESTINATION
+        ${PROJECT_NAME}/lib
+        )
+
+

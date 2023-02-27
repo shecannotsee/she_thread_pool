@@ -8,7 +8,8 @@
 #include <functional>
 #include <memory>
 #include <future>
-#include "../SafeQueue/SafeQueue.h"
+
+#include <SafeQueue/SafeQueue.h>
 
 namespace NoCpp14Standard{
 template<typename T, typename... Ts>
