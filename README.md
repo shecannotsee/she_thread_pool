@@ -4,7 +4,7 @@ Authors: shecannotsee (shecannotsee@163.com)
 
 # Features
 
-- In order to compensate for the poor performance of ini type files supported by objects,the problem is solved by adding file objects.
+- Based on c++11 and without any dependency
 - Easy to use.
 - Clear architecture so that you can easily modify the library
 
